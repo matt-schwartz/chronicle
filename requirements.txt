@@ -1,0 +1,4 @@
+anthropic==0.84.0
+chromadb==1.5.4
+GitPython==3.1.46
+requests==2.32.5
