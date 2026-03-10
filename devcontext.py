@@ -21,6 +21,7 @@ if not os.path.exists('settings.py'):
 import settings
 import agent.search
 import connectors.git
+import connectors.jira
 
 
 def parse_args():
@@ -35,6 +36,14 @@ if __name__ == "__main__":
         print("Import project context...")
         for repo_path in settings.LOCAL_REPOS:
             connectors.git.store_history(repo_path)
+        if getattr(settings, 'JIRA_PROJECTS', []):
+            print("Import Jira project context...")
+            connectors.jira.store_issues(
+                url=settings.JIRA_URL,
+                email=settings.JIRA_EMAIL,
+                api_token=settings.JIRA_API_TOKEN,
+                projects=settings.JIRA_PROJECTS,
+            )
     elif args.command == "chat":
         agent.search.chat()
 
