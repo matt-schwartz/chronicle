@@ -24,7 +24,7 @@ Team sync, advanced search, AI summarization, more integrations
 ## Implementation
 
 Core components:
-- Data collectors / Watchers
+- Data collectors / Connectors
 - Central data store
     - SQLite for structured data
     - ChromaDB for vector data

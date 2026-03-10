@@ -20,7 +20,7 @@ if not os.path.exists('settings.py'):
 
 import settings
 import agent.search
-import watchers.git
+import connectors.git
 
 
 def parse_args():
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     if args.command == "import":
         print("Import project context...")
         for repo_path in settings.LOCAL_REPOS:
-            watchers.git.store_history(repo_path)
+            connectors.git.store_history(repo_path)
     elif args.command == "chat":
         agent.search.chat()
 
