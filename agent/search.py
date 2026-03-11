@@ -21,6 +21,7 @@ from langchain.agents.structured_output import ToolStrategy
 from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain.tools import tool, ToolRuntime
+from yaspin import yaspin
 
 import storage.vector
 import settings
@@ -60,8 +61,9 @@ class ResponseFormat:
 
 def chat():
     model = init_chat_model(
-        "claude-sonnet-4-6",
-        timeout=10,
+        # "claude-sonnet-4-6",
+        "claude-haiku-4-5",
+        timeout=30,
         max_tokens=1024
     )
     checkpointer = InMemorySaver()
@@ -80,10 +82,12 @@ def chat():
             query = input("Enter your query: ")
             # result = search_context(query, project=None)
 
-            response = agent.invoke(
-                {"messages": [{"role": "user", "content": query}]},
-                config=config,
-            )
+            with yaspin(text="Thinking...", color="cyan") as spinner:
+                response = agent.invoke(
+                    {"messages": [{"role": "user", "content": query}]},
+                    config=config,
+                )
+                spinner.ok("✔")
 
             print(response['structured_response'].answer)
             # print("\nSources:")

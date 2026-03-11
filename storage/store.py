@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import json
 
@@ -35,16 +35,18 @@ def store_event(type: str, source: str, project: str, content: str, metadata: di
     :param timestamp: The timestamp of the event. If None, the current time is used.
     """
     if timestamp is None:
-        timestamp = datetime.now(tz=datetime.timezone.utc)
+        timestamp = datetime.now(tz=timezone.utc)
     timestamp = timestamp.isoformat()
     with sql.get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO events (type, source, project, content, metadata, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
-            (type, source, project, content, json.dumps(metadata), timestamp)
-        )
-        vector.store_with_embedding(id=str(cursor.lastrowid), content=content, type=type, project=project, timestamp=timestamp)
-        logger.info(f"Stored event {type} for project {project} with ID {cursor.lastrowid}")
+        cursor.execute("SELECT 1 FROM events WHERE type = ? AND source = ? AND project = ? AND content = ?", (type, source, project, content))
+        if cursor.fetchone() is None:
+            cursor.execute(
+                "INSERT INTO events (type, source, project, content, metadata, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+                (type, source, project, content, json.dumps(metadata), timestamp)
+            )
+            vector.store_with_embedding(id=str(cursor.lastrowid), content=content, type=type, project=project, timestamp=timestamp)
+            logger.info(f"Stored event {type} for project {project} with ID {cursor.lastrowid}")
 
 
 if __name__ == "__main__":

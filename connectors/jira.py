@@ -32,27 +32,15 @@ def store_issues(url, email, api_token, projects):
     client = connect(url, email, api_token)
 
     for project_key in projects:
-        start_at = 0
-        batch_size = 50
+        issues = client.enhanced_search_issues(
+            f'project={project_key} ORDER BY created ASC',
+            # maxResults=batch_size,
+            fields='summary,description,issuetype,status,assignee,creator,priority,created,updated,comment',
+        )
 
-        while True:
-            issues = client.search_issues(
-                f'project={project_key} ORDER BY created ASC',
-                startAt=start_at,
-                maxResults=batch_size,
-                fields='summary,description,issuetype,status,assignee,creator,priority,created,updated,comment',
-            )
-
-            if not issues:
-                break
-
-            for issue in issues:
-                _store_issue(issue, project_key)
-                _store_comments(client, issue, project_key)
-
-            start_at += len(issues)
-            if len(issues) < batch_size:
-                break
+        for issue in issues:
+            _store_issue(issue, project_key)
+            _store_comments(client, issue, project_key)
 
 
 def _store_issue(issue, project_key):

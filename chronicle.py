@@ -15,35 +15,19 @@
 import argparse
 import os
 
+import cli.commands
+
 if not os.path.exists('settings.py'):
     raise FileNotFoundError("Please create a settings.py file based on settings_example.py and fill in the required values.")
-
-import settings
-import agent.search
-import connectors.git
-import connectors.jira
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description="DevContext CLI")
     parser.add_argument("command", type=str, help="Command to execute (e.g., 'import', 'watch', 'chat')", choices=['import', 'chat'])
-    # parser.add_argument("--config", type=str, help="Path to the configuration file")
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
     if args.command == "import":
-        print("Import project context...")
-        for repo_path in settings.LOCAL_REPOS:
-            connectors.git.store_history(repo_path)
-        if getattr(settings, 'JIRA_PROJECTS', []):
-            print("Import Jira project context...")
-            connectors.jira.store_issues(
-                url=settings.JIRA_URL,
-                email=settings.JIRA_EMAIL,
-                api_token=settings.JIRA_API_TOKEN,
-                projects=settings.JIRA_PROJECTS,
-            )
+        cli.commands.import_context()
     elif args.command == "chat":
-        agent.search.chat()
-
+        cli.commands.chat()

@@ -19,7 +19,7 @@ from github import Github
 
 from storage.store import store_event
 
-def watch_prs(repo_name):
+def store_prs(repo_name, access_token):
     g = Github(access_token)
     repo = g.get_repo(repo_name)
     
